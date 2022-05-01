@@ -1,0 +1,4 @@
+stack.cpp
+*.o
+backup.cpp
+original_code.cpp
