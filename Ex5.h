@@ -70,10 +70,10 @@ void top(pmyStack s, int sockfd)
         input[j] = s->data[k+1];
         k++;
     }
-    for (int i = 0; i < 20; i++)
-    {
-        printf("%c", input[i]);
-    }
+    // for (int i = 0; i < 20; i++)
+    // {
+    //     printf("%c", input[i]);
+    // }
     if (send(sockfd, input, strlen(input), 0) == -1)
     {
         perror("send");
