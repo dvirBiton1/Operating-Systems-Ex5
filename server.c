@@ -4,11 +4,7 @@
 
 #include "Ex5.h"
 
-// bzero(head->data, MAXDATASIZE);
-// strcpy(head->data, "");
-// head->next = NULL;
-// void *shared_memory = mmap(NULL,4096,PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1 , 0);
-// (int)shared_memory = 3;
+pmyStack stack1;
 void sigchld_handler(int s)
 {
     // waitpid() might overwrite errno, so we save and restore it:
@@ -30,20 +26,11 @@ void *get_in_addr(struct sockaddr *sa)
 
     return &(((struct sockaddr_in6 *)sa)->sin6_addr);
 }
-StackNode * head;
 void *myThread(void *arg)
 {
     char input[1024] = {0};
     int new_fd = *(int *)arg;
     int numbytes;
-    // if ((numbytes = recv(new_fd, input, MAXDATASIZE - 1, 0)) == -1)
-    // {
-    //     perror("recv");
-    //     exit(1);
-    // }
-    // input[numbytes] = '\0';
-    // printf("server: received '%s'\n", input);
-    // int len = strlen(input);
     while (strcmp(input, "EXIT"))
     {
         char str[1024];
@@ -54,30 +41,18 @@ void *myThread(void *arg)
             {
                 str[j] = input[i];
             }
-            push(str, &head);
+            push(str, stack1);
+            // printS(stack1);
         }
         else if (strncmp(input, "POP", 3) == 0)
         {
-            pop(&head);
+            pop(stack1);
         }
         else if (strncmp(input, "TOP", 3) == 0)
         {
-            top(&head, new_fd);
+            top(stack1, new_fd);
+            // printS(stack1);
         }
-        //for the bonus:
-        // if (strncmp(input, "ENQUEUE", 7) == 0)
-        // {
-        //     for (int i = 8, j = 0; i < strlen(input); i++, j++)
-        //     {
-        //         str[j] = input[i];
-        //     }
-        //     enqueue(str, &head);
-        // }
-        // else if (strncmp(input, "DEQUEUE", 7) == 0)
-        // {
-        //     dequeue(&head, new_fd);
-        // }
-        //until here
         bzero(input, 1024);
         if ((numbytes = recv(new_fd, input, MAXDATASIZE - 1, 0)) == -1)
         {
@@ -100,16 +75,15 @@ void *myThread(void *arg)
         printf("\n");
     }
     printf("good bye\n");
-    // if (send(new_fd, "Hello, world!", 13, 0) == -1) {
-    //     perror("send");
-    // }
     close(new_fd);
     return NULL;
 }
 
 int main(void)
 {
-    head = mmap(0, sizeof(StackNode), PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED|MAP_ANON, -1, 0 );
+    stack1 = (pmyStack)mmap(0, 2000, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANON, -1, 0 );
+    stack1->data[0] = '\0';
+    stack1->top = 0;
     int sockfd, new_fd; // listen on sock_fd, new connection on new_fd
     struct addrinfo hints, *servinfo, *p;
     struct sockaddr_storage their_addr; // connector's address information
@@ -198,8 +172,10 @@ int main(void)
                   get_in_addr((struct sockaddr *)&their_addr),
                   s, sizeof s);
         printf("server: got connection from %s\n", s);
+        
 
         if (!fork()) { // this is the child process
+            i++;
             close(sockfd); // child doesn't need the listener
             myThread(&new_fd);
             close(new_fd);
