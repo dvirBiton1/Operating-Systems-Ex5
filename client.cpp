@@ -2,7 +2,7 @@
 ** client.c -- a stream socket client demo
 */
 
-#include "Ex5.h"
+#include "Ex5.hpp"
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)

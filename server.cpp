@@ -2,7 +2,7 @@
 ** server.c -- a stream socket server demo
 */
 
-#include "Ex5.h"
+#include "Ex5.hpp"
 
 pmyStack stack1;
 void sigchld_handler(int s)
