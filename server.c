@@ -63,9 +63,10 @@ void *myThread(void *arg)
         {
             printf("client disconnect\n");
             close(new_fd);
+            close (fd);
             return NULL;
         }
-        
+
         input[numbytes] = '\0';
         printf("server received: ");
         for (int i = 0; i < strlen(input); i++)
@@ -76,12 +77,14 @@ void *myThread(void *arg)
     }
     printf("good bye\n");
     close(new_fd);
+    close (fd);
     return NULL;
 }
 
 int main(void)
 {
-    stack1 = (pmyStack)mmap(0, 2000, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANON, -1, 0 );
+    createFile();
+    stack1 = (pmyStack)mmap(0, 2000, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_SHARED | MAP_ANON, -1, 0);
     stack1->data[0] = '\0';
     stack1->top = 0;
     int sockfd, new_fd; // listen on sock_fd, new connection on new_fd
@@ -172,16 +175,16 @@ int main(void)
                   get_in_addr((struct sockaddr *)&their_addr),
                   s, sizeof s);
         printf("server: got connection from %s\n", s);
-        
 
-        if (!fork()) { // this is the child process
+        if (!fork())
+        { // this is the child process
             i++;
             close(sockfd); // child doesn't need the listener
             myThread(&new_fd);
             close(new_fd);
             exit(0);
         }
-        close(new_fd);  // parent doesn't need this
+        close(new_fd); // parent doesn't need this
     }
 
     return 0;
