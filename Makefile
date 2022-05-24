@@ -1,7 +1,7 @@
 .PHONY: all clean
 CXX=gcc
 
-all: server client
+all: server client test
 server: Ex5.hpp server.o 
 	$(CXX) server.o -o server
 client: client.o Ex5.hpp
